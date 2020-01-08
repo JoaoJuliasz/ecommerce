@@ -13,13 +13,13 @@ class Page
         "data" => []
     ];
 
-    public function __construct($opts = array())
+    public function __construct($opts = array(), $tpl_dir = "/views/")
     {
         //caso passe um parametro em opts e de conflito com defaults, vai prevalecer o opts, juntando
         //as duas e mesclando em opitions
         $this->options = array_merge($this->defaults, $opts);
         $config = array(
-            "tpl_dir"  => $_SERVER["DOCUMENT_ROOT"] . "/views/",
+            "tpl_dir"  => $_SERVER["DOCUMENT_ROOT"] . $tpl_dir,
             "cache_dir"  => $_SERVER["DOCUMENT_ROOT"] . "/views-cache/"
         );
 
