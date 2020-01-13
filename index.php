@@ -235,12 +235,12 @@ $app->get("/admin/categories/:idcategory", function ($idcategory) {
 
 	$category = new Category;
 
-	$category->get((int)$idcategory);
+	$category->get((int) $idcategory);
 
 	$page = new PageAdmin();
 
-	$page->setTpl("categories-update",[
-		'category'=>$category->getValues()
+	$page->setTpl("categories-update", [
+		'category' => $category->getValues()
 	]);
 });
 $app->post("/admin/categories/:idcategory", function ($idcategory) {
@@ -248,7 +248,7 @@ $app->post("/admin/categories/:idcategory", function ($idcategory) {
 
 	$category = new Category;
 
-	$category->get((int)$idcategory);
+	$category->get((int) $idcategory);
 
 	$category->setData($_POST);
 
@@ -256,6 +256,18 @@ $app->post("/admin/categories/:idcategory", function ($idcategory) {
 
 	header("Location: /admin/categories");
 	exit;
+});
+
+$app->get("/categories/:idcategory", function ($idcategory) {
+	$category = new Category;
+
+	$category->get((int) $idcategory);
+
+	$page = new Page;
+	$page->setTpl("category", array(
+		'category' => $category->getValues(),
+		'products'=>[]
+	));
 });
 
 $app->run();
