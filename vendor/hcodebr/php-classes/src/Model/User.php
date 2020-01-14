@@ -15,6 +15,32 @@ class User extends Model
 
     const SESSION = "User";
 
+    public static function getFromSession()
+    {
+        $user = new User;
+
+        if (isset($_SESSION[User::SESSION]) && (int) $_SESSION[User::SESSION]['iduser'] > 0) {
+            $user->setData($_SESSION[User::SESSION]);
+        }
+        return $user;
+    }
+
+    public static function checkLogin($inadmin = true)
+    {
+        if(!isset($_SESSION[User::SESSION]) || !$_SESSION[User::SESSION] 
+        || !(int)$_SESSION[User::SESSION]['iduser'] > 0){
+            return false;
+        }//nao esta logado
+        else{
+            if($inadmin === true && (bool)$_SESSION[User::SESSION]['inadimin'] === true){
+                return true;
+            }else if($inadmin === false){
+                return true;
+            }else{
+                return false;
+            }
+        }
+    }
     public static function login($login, $password)
     {
         $sql = new Sql();
@@ -40,15 +66,7 @@ class User extends Model
 
     public static function verifyLogin($inadmin = true)
     {
-        if (
-            !isset($_SESSION[User::SESSION])
-            ||
-            !$_SESSION[User::SESSION]
-            ||
-            !(int) $_SESSION[User::SESSION] > 0
-            ||
-            (bool) $_SESSION[User::SESSION]["inadmin"] !== $inadmin
-        ) {
+        if (User::checkLogin($inadmin)) {
             header("Location: /admin/login");
         }
     }
@@ -197,15 +215,16 @@ class User extends Model
     {
         $sql = new Sql();
         $sql->query("UPDATE tb_userspasswordsrecoveries set dtrecovery = now() where idrecovery = :idrecovery", array(
-            ":idrecovery"=>$idrecovery
+            ":idrecovery" => $idrecovery
         ));
     }
 
-    public function setPassword($password){
+    public function setPassword($password)
+    {
         $sql = new Sql;
         $sql->query("UPDATE tb_users set despassword = :password where iduser = :iduser", array(
-            ":password"=>$password,
-            ":iduser"=>$this->getiduser()
+            ":password" => $password,
+            ":iduser" => $this->getiduser()
         ));
     }
 }
