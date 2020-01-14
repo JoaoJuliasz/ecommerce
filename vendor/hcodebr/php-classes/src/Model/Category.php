@@ -3,7 +3,7 @@
 namespace Hcode\Model;
 
 use \Hcode\DB\Sql;
-use Hcode\Mailer;
+use Hcode\Model\Product;
 use \Hcode\Model;
 
 class Category extends Model
@@ -58,9 +58,51 @@ class Category extends Model
         $html = [];
 
         foreach ($categories as $row) {
-            array_push($html , '<li><a href="/categories/' . $row['idcategory'] . '">' . $row['descategory'] . '</a></li>');
+            array_push($html, '<li><a href="/categories/' . $row['idcategory'] . '">' . $row['descategory'] . '</a></li>');
         }
 
         file_put_contents($_SERVER['DOCUMENT_ROOT'] . DIRECTORY_SEPARATOR . "views" . DIRECTORY_SEPARATOR . "menu-categories.html", implode('', $html));
+    }
+
+    public function getProducts($related = true)
+    {
+        $sql = new Sql;
+        if ($related === true) {
+            return $sql->select(
+                "SELECT * FROM tb_products WHERE idproduct IN(
+                    SELECT a.idproduct
+                    FROM tb_products a
+                    INNER JOIN tb_productscategories b ON a.idproduct = b.idproduct
+                    WHERE b.idcategory = :idcategory);",
+                [
+                    ":idcategory" => $this->getidcategory()
+                ]
+            );
+        } else {
+            return $sql->select("SELECT * from tb_products where idproduct not in(
+                 SELECT a.idproduct from tb_products a inner join tb_productscategories b on
+                a.idproduct = b.idproduct where b.idcategory = :idcategory);", [
+                ":idcategory" => $this->getidcategory()
+            ]);
+        }
+    }
+
+    public function addProduct(Product $product)
+    {
+        $sql = new Sql;
+
+        $sql->query("INSERT INTO tb_productscategories (idcategory, idproduct) values (:idcategory, :idproduct)", [
+            ":idcategory" => $this->getidcategory(),
+            ":idproduct" => $product->getidproduct()
+        ]);
+    }
+
+    public function removeProduct(Product $product)
+    {
+        $sql = new Sql;
+        $sql->query("DELETE FROM tb_productscategories WHERE idcategory = :idcategory AND idproduct = :idproduct", [
+            ":idcategory" => $this->getidcategory(),
+            ":idproduct" => $product->getidproduct()
+        ]);
     }
 }
