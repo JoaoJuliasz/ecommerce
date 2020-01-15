@@ -153,7 +153,7 @@ class User extends Model
         ));
     }
 
-    public static function getForgot($email)
+    public static function getForgot($email, $inadmin = true)
     {
         $sql = new Sql();
         $results = $sql->select("SELECT * from tb_persons a inner join tb_users b using (idperson) where a.desemail = :email", array(
@@ -185,8 +185,13 @@ class User extends Model
                 );
 
                 $code =  base64_encode($code);
+                if($inadmin === true){
+                    $link = "http://www.joaocommerce.com.br/admin/forgot/reset?code=$code";
 
-                $link = "http://www.joaocommerce.com.br/admin/forgot/reset?code=$code";
+                }else{
+                    $link = "http://www.joaocommerce.com.br/forgot/reset?code=$code";
+
+                }
 
                 $mailer = new Mailer($data["desemail"], $data["desperson"], "Redefinir senha da joao store", "forgot", array(
                     "name" => $data["desperson"],
