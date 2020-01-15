@@ -260,3 +260,43 @@ $app->post("/forgot/reset", function () {
 	$page = new Page();
 	$page->setTpl("forgot-reset-success");
 });
+
+$app->get('/profile', function(){
+    User::verifyLogin(false);
+
+    $user = User::getFromSession();
+    $page = new Page;
+
+    $page->setTpl("profile", [
+        'user'=>$user->getValues(),
+        'profileMsg'=>'',
+        'profileError'=>''
+    ]);
+});
+
+$app->post('/profile', function (){
+
+    User::verifyLogin(false);
+    
+    if(!isset($_POST['desperson']) || $_POST['desperson'] === ''){
+        User::setError("Preencha seu nome");
+    }
+    if(!isset($_POST['desemail']) || $_POST['desemail'] === ''){
+        User::setError("Preencha seuemail");
+    }
+    $user = User::getFromSession();
+    if($_POST['desemail'] != $user->getdesemail()){
+       if (User::checkLoginExists($_POST['desemail']) === true){
+           User::setError("Email ja esta cadastrado");
+       }
+    }
+
+    $_POST['inadmin'] = $user->getinadmin();
+    $_POST['despassword'] = $user->getdespassword();
+    $_POST['deslogin'] = $_POST['desemail'];
+
+    $user->setData($_POST);
+
+    $user->update();
+    header('Location: /profile');
+});
