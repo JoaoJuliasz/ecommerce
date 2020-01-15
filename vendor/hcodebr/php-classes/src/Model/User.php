@@ -12,6 +12,8 @@ class User extends Model
     //secret precisa ter 16 carac.
     const SECRET = "HcodePhp7_Secret";
     const SECRET_IV = "HcodePhp7_Secret_IV";
+    const ERROR = "UserError";
+    const ERROR_REGISTER = "UserErrorRegister";
 
     const SESSION = "User";
 
@@ -27,16 +29,18 @@ class User extends Model
 
     public static function checkLogin($inadmin = true)
     {
-        if(!isset($_SESSION[User::SESSION]) || !$_SESSION[User::SESSION] 
-        || !(int)$_SESSION[User::SESSION]['iduser'] > 0){
+        if (
+            !isset($_SESSION[User::SESSION]) || !$_SESSION[User::SESSION]
+            || !(int) $_SESSION[User::SESSION]['iduser'] > 0
+        ) {
             return false;
-        }//nao esta logado
-        else{
-            if($inadmin === true && (bool)$_SESSION[User::SESSION]['inadimin'] === true){
+        } //nao esta logado
+        else {
+            if ($inadmin === true && (bool) $_SESSION[User::SESSION]['inadimin'] === true) {
                 return true;
-            }else if($inadmin === false){
+            } else if ($inadmin === false) {
                 return true;
-            }else{
+            } else {
                 return false;
             }
         }
@@ -44,7 +48,7 @@ class User extends Model
     public static function login($login, $password)
     {
         $sql = new Sql();
-        $results = $sql->select("SELECT * FROM tb_users WHERE deslogin = :LOGIN", array(
+        $results = $sql->select("SELECT * FROM tb_users a inner join tb_persons b on a.idperson = b.idperson where a.deslogin = :LOGIN", array(
             ":LOGIN" => $login
         ));
         if (count($results) === 0) {
@@ -52,7 +56,7 @@ class User extends Model
         }
         $data = $results[0];
 
-        if (password_verify($password, $data["despassword"])) {
+        if (password_verify($password, $data["despassword"]) === true) {
             $user = new User();
             $user->setData($data);
 
@@ -68,6 +72,8 @@ class User extends Model
     {
         if (User::checkLogin($inadmin)) {
             header("Location: /admin/login");
+        } else {
+            header("Location: /login");
         }
     }
 
@@ -92,7 +98,7 @@ class User extends Model
 
             ":deslogin" => $this->getdeslogin(),
 
-            ":despassword" => $this->getdespassword(),
+            ":despassword" => User::getPasswordHash($this->getdespassword()),
 
             ":desemail" => $this->getdesemail(),
 
@@ -126,7 +132,7 @@ class User extends Model
 
             ":deslogin" => $this->getdeslogin(),
 
-            ":despassword" => $this->getdespassword(),
+            ":despassword" => User::getPasswordHash($this->getdespassword()),
 
             ":desemail" => $this->getdesemail(),
 
@@ -226,5 +232,44 @@ class User extends Model
             ":password" => $password,
             ":iduser" => $this->getiduser()
         ));
+    }
+
+    public static function setError($msg)
+    {
+        $_SESSION[User::ERROR] = $msg;
+    }
+
+    public static function getError()
+    {
+
+        $msg = (isset($_SESSION[User::ERROR]) && $_SESSION[User::ERROR]) ? $_SESSION[User::ERROR] : '';
+        User::clearError();
+
+        return $msg;
+    }
+
+    public static function clearError()
+    {
+        $_SESSION[User::ERROR] = NULL;
+    }
+
+    public static function setErrorRegister($msg)
+    {
+        $_SESSION[User::ERROR_REGISTER] = $msg;
+    }
+
+    public static function checkLoginExists($login)
+    {
+        $sql = new Sql;
+
+        $results = $sql->select("SELECT * from tb_users where deslogin = :deslogin", [
+            ':deslogin' => $login
+        ]);
+    }
+
+    public function getPasswordHash($password){
+        return password_hash($password, PASSWORD_DEFAULT,[
+            'cost'=>12
+        ]);
     }
 }
