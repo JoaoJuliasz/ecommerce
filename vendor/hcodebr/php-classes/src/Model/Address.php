@@ -14,7 +14,7 @@ class Address extends Model
 
         $ch = curl_init();
 
-        curl_setopt($ch, CURLOPT_URL, 'http://viacep.com.br/ws/$nrcep/json/');
+        curl_setopt($ch, CURLOPT_URL, "http://viacep.com.br/ws/$nrcep/json/");
 
         //se precisa retornar
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -36,7 +36,7 @@ class Address extends Model
             $this->setdesdistrict($data['bairro']);
             $this->setdescity($data['localidade']);
             $this->setdesstate($data['uf']);
-            $this->setdescountry($data['Brasil']);
+            $this->setdescountry('Brasil');
             $this->setdeszipcode($nrcep);
         }
     }
@@ -57,6 +57,7 @@ class Address extends Model
             ':deszipcode' => $this->getdeszipcode(),
             ':desdistrict' => $this->getdesdistrict(),
             ':desnumber' => $this->getdesnumber()
+
         ]);
 
         if (count($results) > 0) {
