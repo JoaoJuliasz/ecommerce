@@ -37,7 +37,7 @@ class User extends Model
             return false;
         } //nao esta logado
         else {
-            if ($inadmin === true && (bool) $_SESSION[User::SESSION]['inadimin'] === true) {
+            if ($inadmin === true && (bool) $_SESSION[User::SESSION]['inadmin'] === true) {
                 return true;
             } else if ($inadmin === false) {
                 return true;
@@ -71,10 +71,12 @@ class User extends Model
 
     public static function verifyLogin($inadmin = true)
     {
-        if (User::checkLogin($inadmin)) {
-            header("Location: /admin/login");
-        } else {
-            header("Location: /login");
+        if (!User::checkLogin($inadmin)) {
+            if ($inadmin) {
+                header("Location: /admin/login");
+            } else {
+                header("Location: /login");
+            }
         }
     }
 
@@ -186,12 +188,10 @@ class User extends Model
                 );
 
                 $code =  base64_encode($code);
-                if($inadmin === true){
+                if ($inadmin === true) {
                     $link = "http://www.joaocommerce.com.br/admin/forgot/reset?code=$code";
-
-                }else{
+                } else {
                     $link = "http://www.joaocommerce.com.br/forgot/reset?code=$code";
-
                 }
 
                 $mailer = new Mailer($data["desemail"], $data["desperson"], "Redefinir senha da joao store", "forgot", array(
@@ -305,9 +305,10 @@ class User extends Model
         ]);
     }
 
-    public function getPasswordHash($password){
-        return password_hash($password, PASSWORD_DEFAULT,[
-            'cost'=>12
+    public function getPasswordHash($password)
+    {
+        return password_hash($password, PASSWORD_DEFAULT, [
+            'cost' => 12
         ]);
     }
 }

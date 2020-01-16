@@ -89,7 +89,7 @@
 															<?php echo htmlspecialchars( $value1["desproduct"], ENT_COMPAT, 'UTF-8', FALSE ); ?> <strong class="product-quantity">× <?php echo htmlspecialchars( $value1["nrqtd"], ENT_COMPAT, 'UTF-8', FALSE ); ?></strong> 
 														</td>
 														<td class="product-total">
-															<span class="amount">R$<?php echo format_real($value1["vltotal"]); ?></span>
+															<span class="amount">R$<?php echo formatPrice($value1["vltotal"]); ?></span>
 														</td>
                                                     </tr>
                                                     <?php } ?>
@@ -97,19 +97,19 @@
 												<tfoot>
 													<tr class="cart-subtotal">
 														<th>Subtotal</th>
-														<td><span class="amount">R$<?php echo format_real($cart["vlsubtotal"]); ?></span>
+														<td><span class="amount">R$<?php echo formatPrice($cart["vlsubtotal"]); ?></span>
 														</td>
 													</tr>
 													<tr class="shipping">
 														<th>Frete</th>
 														<td>
-															R$<?php echo format_real($cart["vlfreight"]); ?>
+															R$<?php echo formatPrice($cart["vlfreight"]); ?>
 															<input type="hidden" class="shipping_method" value="free_shipping" id="shipping_method_0" data-index="0" name="shipping_method[0]">
 														</td>
 													</tr>
 													<tr class="order-total">
 														<th>Total do Pedido</th>
-														<td><strong><span class="amount">R$<?php echo format_real($cart["vltotal"]); ?></span></strong> </td>
+														<td><strong><span class="amount">R$<?php echo formatPrice($cart["vltotal"]); ?></span></strong> </td>
 													</tr>
 												</tfoot>
 											</table>
