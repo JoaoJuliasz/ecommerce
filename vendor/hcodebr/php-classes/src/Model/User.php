@@ -312,9 +312,10 @@ class User extends Model
         ]);
     }
 
-    public function getOrders(){
+    public function getOrders()
+    {
         $sql = new Sql();
-		$results = $sql->select("
+        $results = $sql->select("
 			SELECT * 
 			FROM tb_orders a 
 			INNER JOIN tb_ordersstatus b USING(idstatus) 
@@ -324,8 +325,52 @@ class User extends Model
 			INNER JOIN tb_persons f ON f.idperson = d.idperson
 			WHERE a.iduser = :iduser
 		", [
-			':iduser'=>$this->getiduser()
+            ':iduser' => $this->getiduser()
         ]);
         return $results;
+    }
+    public static function getPage($page = 1, $itemsPerPage = 8)
+    {
+        $start = ($page - 1) * $itemsPerPage;
+
+        $sql = new Sql;
+
+        $results =  $sql->select("SELECT SQL_CALC_FOUND_ROWS *
+            FROM tb_users a
+            INNER JOIN tb_persons b 
+            USING(idperson) ORDER BY b.desperson
+            LIMIT $start, $itemsPerPage");
+
+        $resultTotal = $sql->select("SELECT FOUND_ROWS() as nrtotal");
+
+        return [
+            'data' => $results,
+            'total' => (int) $resultTotal[0]['nrtotal'],
+            'pages' => ceil($resultTotal[0]['nrtotal'] / $itemsPerPage)
+        ];
+    }
+    public static function getPageSearch($search, $page = 1, $itemsPerPage = 8)
+    {
+        $start = ($page - 1) * $itemsPerPage;
+
+        $sql = new Sql;
+
+        $results =  $sql->select("SELECT SQL_CALC_FOUND_ROWS *
+            FROM tb_users a
+            INNER JOIN tb_persons b 
+            USING(idperson) 
+            where b.desperson like :search or b.desemail = :search or a.deslogin like :search
+            ORDER BY b.desperson
+            LIMIT $start, $itemsPerPage",[
+                ":search"=>'%'.$search.'%'
+            ]);
+
+        $resultTotal = $sql->select("SELECT FOUND_ROWS() as nrtotal");
+
+        return [
+            'data' => $results,
+            'total' => (int) $resultTotal[0]['nrtotal'],
+            'pages' => ceil($resultTotal[0]['nrtotal'] / $itemsPerPage)
+        ];
     }
 }
