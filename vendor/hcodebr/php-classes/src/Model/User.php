@@ -305,7 +305,7 @@ class User extends Model
         ]);
     }
 
-    public function getPasswordHash($password)
+    public static function getPasswordHash($password)
     {
         return password_hash($password, PASSWORD_DEFAULT, [
             'cost' => 12
